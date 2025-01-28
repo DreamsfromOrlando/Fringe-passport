@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fringe Digital Passport</title>
+    <style>
+        /* Retro passport styling */
+        body { background: #f0e6d3; font-family: 'Courier New', monospace; }
+        #passport { max-width: 600px; margin: 20px auto; padding: 20px; border: 2px solid #8b4513; }
+        #cameraFeed { width: 100%; border: 3px dashed #8b4513; }
+        button { background: #8b4513; color: white; padding: 10px; border: none; cursor: pointer; }
+        .stamp { width: 50px; height: 50px; margin: 10px; }
+    </style>
+</head>
+<body>
+    <div id="passport">
+        <h1>🛂 Fringe Passport</h1>
+        <div id="photoSection">
+            <video id="cameraFeed" autoplay></video>
+            <button id="captureBtn">Capture Photo</button>
+            <img id="passportPhoto" style="display: none;">
+        </div>
+        <div id="progressSection">
+            <h2>Your Journey:</h2>
+            <div id="stamps"></div>
+        </div>
+    </div>
+
+    <script>
+        // Generate unique ID for visitor
+        let uuid = localStorage.getItem('fringePassportID');
+        if (!uuid) {
+            uuid = crypto.randomUUID();
+            localStorage.setItem('fringePassportID', uuid);
+        }
+
+        // Access camera
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                const video = document.getElementById('cameraFeed');
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                alert("Enable camera access to start your journey! 📸");
+            });
+
+        // Capture photo
+        document.getElementById('captureBtn').addEventListener('click', () => {
+            const video = document.getElementById('cameraFeed');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
+            // Save photo locally
+            const photo = document.getElementById('passportPhoto');
+            photo.src = canvas.toDataURL('image/png');
+            photo.style.display = 'block';
+            video.style.display = 'none';
+
+            // Add a default "Entry Stamp"
+            const stamps = document.getElementById('stamps');
+            stamps.innerHTML += `<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAAkElEQVR4nOzXQQqAIBBA0Vm6/6VzLxERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERH5rwdzWwXbCvOuHAAAAABJRU5ErkJggg==" class="stamp">`;
+        });
+    </script>
+</body>
+</html>
